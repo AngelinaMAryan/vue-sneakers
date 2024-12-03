@@ -3,10 +3,14 @@
     <MyCard
       v-for="item in items"
       :key="item.id"
+      :id="item.id"
       :imageUrl="item.imageUrl"
       :title="item.title"
       :price="item.price"
-      :onclick-add="onclickAdd"
+      :onclick-add="() => emit('addToCart', item)"
+      :onclick-favorite="() => emit('addToFavorite', item)"
+      :isFavorite="item.isFavorite"
+      :isAdded="item.isAdded"
     />
   </div>
 </template>
@@ -17,7 +21,5 @@ defineProps({
   items: Array,
 })
 
-const onclickAdd = () => {
-  alert('Добавлено в корзину')
-}
+const emit = defineEmits(['addToFavorite', 'addToCart'])
 </script>

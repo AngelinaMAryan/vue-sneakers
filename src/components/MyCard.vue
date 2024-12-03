@@ -22,13 +22,25 @@
 </template>
 
 <script setup>
-defineProps({
+//import { inject } from 'vue'
+/*const props = */ defineProps({
+  id: Number,
   imageUrl: String,
   title: String,
   price: Number,
   isFavorite: Boolean,
   isAdded: Boolean,
-  onclickAdd: Function,
   onclickFavorite: Function,
+  onclickAdd: Function,
 })
+
+/*const addToFavorite = inject('addToFavorite')
+const onClickFavorite = () => {
+  const obj = {
+    ...props,
+    parentId: props.id,
+  }
+
+  addToFavorite(obj)
+}*/
 </script>
