@@ -2,8 +2,10 @@
   <MyDrawer
     v-if="drawerOpen"
     @close-drawer="closerDrawer"
-    :totalPrice="totalPrice"
+    :total-price="totalPrice"
     :vat-price="vatPrice"
+    @create-order="createOrder"
+    :cart-button-disabled="CartButtonDisabled"
   />
   <div class="bg-white w-4/5 m-auto rounded-xl shadow-xl mt-14">
     <MyHeader :total-price="totalPrice" @open-drawer="openDrawer" />
@@ -52,12 +54,17 @@ import MyDrawer from './components/MyDrawer.vue'
 
 const items = ref([])
 const cart = ref([])
+const isCreatingOrder = ref(false)
 
 const drawerOpen = ref(false)
 
 const totalPrice = computed(() => cart.value.reduce((acc, item) => acc + item.price, 0))
 
 const vatPrice = computed(() => Math.round((totalPrice.value * 5) / 100))
+
+const cartIsEmpty = computed(() => cart.value.length === 0)
+
+const CartButtonDisabled = computed(() => isCreatingOrder.value || cartIsEmpty.value)
 
 const closerDrawer = () => {
   drawerOpen.value = false
@@ -84,13 +91,17 @@ const removeFromCart = (item) => {
 
 const createOrder = async () => {
   try {
+    isCreatingOrder.value = true
     const { data } = await axios.post('https://8b687858304794bc.mokky.dev/orders', {
-      items: cart,
+      items: cart.value,
       total: totalPrice.value,
     })
+    cart.value = []
     return data
   } catch (error) {
     console.log(error)
+  } finally {
+    isCreatingOrder.value = false
   }
 }
 
@@ -176,18 +187,42 @@ const fetchItems = async () => {
 }
 
 onMounted(async () => {
+  if (localStorage.getItem('cart')) {
+    cart.value = JSON.parse(localStorage.getItem('cart'))
+  }
+
   await fetchItems()
   await fetchFavorites()
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: cart.value.some((cartItem) => cartItem.id === item.id),
+  }))
 })
 
 watch(filters, fetchItems)
+watch(cart, () => {
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: false,
+  }))
+  /*,deep: true  это глубокая проверка*/
+})
+watch(
+  cart,
+  () => {
+    localStorage.setItem('cart', JSON.stringify(cart.value))
+  },
+  {
+    deep: true,
+  },
+)
+
 provide('cart', {
   cart,
   openDrawer,
   closerDrawer,
   addToCart,
   removeFromCart,
-  totalPrice,
 }) //если обращаемся к дочерним,а так испол эмит
 </script>
 
