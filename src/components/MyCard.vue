@@ -3,6 +3,7 @@
     class="relative bg-white border border-slate-100 rounded-3xl p-8 cursor-pointer hover:-translate-y-2 hover:shadow-xl transition"
   >
     <img
+      v-if="onclickFavorite"
       @click="onclickFavorite"
       :src="isFavorite ? '/like-2.svg' : '/like-1.svg'"
       alt="addlike"
@@ -16,14 +17,19 @@
         <span class="text-slate-400">Цена:</span>
         <b>{{ price }} ₽</b>
       </div>
-      <img @click="onclickAdd" :src="isAdded ? '/checked.svg' : '/plus.svg'" alt="addshoot" />
+      <img
+        v-if="onclickAdd"
+        @click="onclickAdd"
+        :src="isAdded ? '/checked.svg' : '/plus.svg'"
+        alt="addshoot"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
 //import { inject } from 'vue'
-/*const props = */ defineProps({
+/*const props =*/ defineProps({
   id: Number,
   imageUrl: String,
   title: String,
